@@ -263,6 +263,7 @@ jobs:
           haxelib install hxjsonast --quiet
           haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex --quiet
           haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons --quiet
+          haxelib install interpret --quiet
           haxelib install hxcpp-debug-server --quiet
           haxelib list
       - name: Create APIStuff
