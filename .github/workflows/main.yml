@@ -6,9 +6,9 @@ name: Build
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ main ]
+    branches: [ master, main ]
   pull_request:
-    branches: [ main ]
+    branches: [ master, main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.2.0
+          haxe-version: 4.2.4
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -35,39 +35,48 @@ jobs:
           haxelib install hxcpp > /dev/null
           haxelib install lime
           haxelib install openfl
-          haxelib --never install flixel
+          haxelib install flixel
           haxelib run lime setup flixel
           haxelib run lime setup
           haxelib install flixel-tools
           haxelib install flixel-ui
           haxelib install flixel-addons
+          haxelib install newgrounds
+          haxelib git polymod https://github.com/larsiusprime/polymod.git
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
           haxelib install tjson
           haxelib install hxjsonast
           haxelib git linc_luajit https://github.com/AndreiRudenko/linc_luajit
           haxelib install hscript
           haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex
-          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+          haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons
+          haxelib install interpret
           haxelib install hxcpp-debug-server
           haxelib list
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
+      - name: Create APIStuff
+        uses: "finnp/create-file-action@master"
+        env:
+          FILE_NAME: "source/APIStuff.hx"
+          FILE_DATA: "package;class APIStuff{public static var API:String = '';public static var EncKey:String = '';}"
       - name: Compile
-        run: haxelib run lime build Project.xml linux --app-version="4.0.0-${{ github.run_id}}"
+        run: haxelib run lime build linux
+      - name: Archive
+        run: tar -czf bin.tar.gz 'export/release/linux/bin' 
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2
         with:
           name: linuxBuild
-          path: 'export/release/linux/bin' 
+          path: bin.tar.gz
   buildWindows:
     runs-on: windows-latest
     
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.3.0
+      - uses: actions/checkout@v2
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.2.0
+          haxe-version: 4.2.4
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -75,30 +84,36 @@ jobs:
           haxelib install hxcpp > nul
           haxelib install lime
           haxelib install openfl
-          haxelib --never install flixel
+          haxelib install flixel
           haxelib run lime setup flixel
           haxelib run lime setup
           haxelib install flixel-tools
           haxelib install flixel-ui
           haxelib install flixel-addons
+          haxelib install newgrounds
+          haxelib git polymod https://github.com/larsiusprime/polymod.git
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
           haxelib install tjson
           haxelib install hxjsonast
           haxelib git linc_luajit https://github.com/AndreiRudenko/linc_luajit
-          haxelib install hscript 
+          haxelib install hscript
           haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex
-          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+          haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons
+          haxelib install interpret
           haxelib install hxcpp-debug-server
           haxelib list
         shell: cmd
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
+      - name: Create APIStuff
+        run: echo "package;class APIStuff{public static var API:String = '';public static var EncKey:String = '';}" > source/APIStuff.hx
       - name: Compile
-        run: haxelib run lime build windows --app-version="4.0.0-${{ github.run_id}}"
+        run: haxelib run lime build windows
+      - name: Archive
+        run: tar -czf bin.tar.gz export/release/windows/bin
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2
         with:
           name: windowsBuild
-          path: export/release/windows/bin
+          path: bin.tar.gz
   buildMac:
     runs-on: macos-latest
 
@@ -108,7 +123,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.2.0
+          haxe-version: 4.2.4
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -116,26 +131,148 @@ jobs:
           haxelib install hxcpp > /dev/null
           haxelib install lime
           haxelib install openfl
-          haxelib --never install flixel
+          haxelib install flixel
           haxelib run lime setup flixel
           haxelib run lime setup
           haxelib install flixel-tools
           haxelib install flixel-ui
           haxelib install flixel-addons
+          haxelib install newgrounds
+          haxelib git polymod https://github.com/larsiusprime/polymod.git
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
           haxelib install tjson
           haxelib install hxjsonast
           haxelib git linc_luajit https://github.com/AndreiRudenko/linc_luajit
           haxelib install hscript
           haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex
-          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+          haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons
+          haxelib install interpret
           haxelib install hxcpp-debug-server
           haxelib list
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
+      - name: Create APIStuff
+        run: echo "package;class APIStuff{public static var API:String = '';public static var EncKey:String = '';}" > source/APIStuff.hx
       - name: Compile
-        run: haxelib run lime build mac --app-version="4.0.0-${{ github.run_id}}"
+        run: haxelib run lime build mac 
+      - name: Archive
+        run: tar -czf bin.tar.gz export/release/macos/bin
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2
         with:
           name: macBuild
-          path: export/release/macos/bin
+          path: bin.tar.gz
+  pagesBuild:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.4
+      # Runs a set of commands using the runners shell
+      - name: Install Haxelib
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install hxcpp > /dev/null
+          haxelib install lime
+          haxelib install openfl
+          haxelib install flixel
+          haxelib run lime setup flixel
+          haxelib run lime setup
+          haxelib install flixel-tools
+          haxelib install flixel-ui
+          haxelib install flixel-addons
+          haxelib install newgrounds
+          haxelib git polymod https://github.com/larsiusprime/polymod.git
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+          haxelib install tjson
+          haxelib install hxjsonast
+          haxelib git linc_luajit https://github.com/AndreiRudenko/linc_luajit
+          haxelib install hscript
+          haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex
+          haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons
+          haxelib install interpret
+          haxelib install hxcpp-debug-server
+          haxelib list
+      - name: Create APIStuff
+        run: echo "package;class APIStuff{public static var API:String = '';public static var EncKey:String = '';}" > source/APIStuff.hx
+      - name: Compile
+        run: haxelib run lime build html5
+      - name: GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v2.5.0
+        with:
+          target_branch: gh-pages
+          build_dir: export/release/html5/bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  buildAndroid:
+     runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.3
+          
+      - name: Cache haxelib path
+        uses: actions/cache@v2
+        with:
+          path: |
+            %HAXELIB_ROOT%
+          key: ${{ runner.os }}-android
+          
+      - name: Setup Android SDK Tools
+        uses: android-actions/setup-android@v2.0.2
+        
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2.3.1
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+        
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r15c
+
+      # Runs a set of commands using the runners shell
+      - name: Installing Packages
+        run: |
+          mkdir -p "%HAXELIB_ROOT%"
+          haxelib setup "%HAXELIB_ROOT%"
+          haxelib install lime 7.9.0 --quiet
+          haxelib install openfl --quiet
+          haxelib install flixel 4.9.0 --quiet
+          haxelib install hxcpp --quiet
+          haxelib run lime setup
+          haxelib run lime config ANDROID_SDK $ANDROID_SDK_ROOT
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true
+          haxelib install flixel-tools --quiet
+          haxelib install flixel-ui --quiet
+          haxelib install flixel-addons 2.10.0 --quiet
+          haxelib install hscript --quiet
+          haxelib git faxe https://github.com/uhrobots/faxe --quiet
+          haxelib git polymod https://github.com/MasterEric/polymod.git --quiet
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc --quiet
+          haxelib git linc_luajit https://github.com/Daninnocent/linc_luajit.git --quiet 
+          haxelib install tjson --quiet
+          haxelib install hxjsonast --quiet
+          haxelib git hscript-ex https://github.com/ianharrigan/hscript-ex --quiet
+          haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons --quiet
+          haxelib install hxcpp-debug-server --quiet
+          haxelib list
+      - name: Create APIStuff
+        run: echo "package;class APIStuff{public static var API:String = '';public static var EncKey:String = '';}" > source/APIStuff.hx
+      - name: Build Log
+        run: |
+          haxelib run lime setup android
+          haxelib run lime build android -final
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Android Build
+          path: export/android/bin/app/build/outputs/apk/debug
